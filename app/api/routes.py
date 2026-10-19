@@ -1,4 +1,5 @@
 from fastapi import APIRouter, HTTPException, BackgroundTasks, WebSocket, WebSocketDisconnect
+from fastapi.responses import JSONResponse
 from app.api.schemas import ChatCompletionRequest
 from core.security.input_guards import InputGuards
 from core.security.output_guards import OutputGuards
@@ -54,7 +55,7 @@ async def chat_completions(request: ChatCompletionRequest):
             "reason": "Prompt Injection Detected",
             "message": "Input guardrails failed: Prompt Injection"
         })
-        return {"error": "Security Block: Prompt Injection Detected", "request_id": request_id}, 403
+        return JSONResponse(status_code=403, content={"error": "Security Block: Prompt Injection Detected", "request_id": request_id})
         
     risk_score = InputGuards.calculate_risk_score(user_prompt)
     await manager.broadcast({

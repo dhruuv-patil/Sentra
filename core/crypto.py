@@ -10,16 +10,29 @@ class CryptoManager:
             except Exception:
                 print("Warning: Invalid ENCRYPTION_KEY provided.")
 
-    def encrypt(self, text: str) -> str:
+    def _ensure_fernet(self):
         if not self.fernet:
+            import os
+            key = os.getenv("ENCRYPTION_KEY") or config.ENCRYPTION_KEY
+            if key:
+                try:
+                    self.fernet = Fernet(key.encode())
+                except Exception:
+                    pass
+        return self.fernet
+
+    def encrypt(self, text: str) -> str:
+        fernet = self._ensure_fernet()
+        if not fernet:
             return "[Encryption Disabled]"
-        return self.fernet.encrypt(text.encode()).decode()
+        return fernet.encrypt(text.encode()).decode()
 
     def decrypt(self, encrypted_text: str) -> str:
-        if not self.fernet:
+        fernet = self._ensure_fernet()
+        if not fernet:
             return "[Decryption Key Missing]"
         try:
-            return self.fernet.decrypt(encrypted_text.encode()).decode()
+            return fernet.decrypt(encrypted_text.encode()).decode()
         except Exception:
             return "[Decryption Failed]"
 

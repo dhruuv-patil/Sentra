@@ -14,6 +14,7 @@ class Config:
     
     # API Keys
     GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+    OLLAMA_URL = os.getenv("OLLAMA_URL", "http://localhost:11434")
     # Server
     API_HOST = os.getenv("API_HOST", "0.0.0.0")
     API_PORT = int(os.getenv("PORT", os.getenv("API_PORT", 8000)))
