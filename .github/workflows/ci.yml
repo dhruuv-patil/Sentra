@@ -7,7 +7,7 @@ on:
     branches: [ main, master ]
 
 jobs:
-  lint-and-validate:
+  lint-and-test:
     runs-on: ubuntu-latest
 
     steps:
@@ -32,6 +32,9 @@ jobs:
           # exit-zero treats all errors as warnings
           flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics --exclude=.venv,venv,.history
 
-      - name: Validate code imports
+      - name: Run Pytest Test Suite
+        env:
+          ENCRYPTION_KEY: "aY-i1BFk65ZKOn8G1uRc_h6378Hqw86niaeqmZlg-Sc="
+          SECRET_KEY: "dbeca5a1-66bf-4254-9aa4-f6d99e9eb62d"
         run: |
-          python -c "import app.server; import core.config; import core.security.input_guards; import core.security.output_guards; print('All core modules imported successfully.')"
+          pytest tests/ -v

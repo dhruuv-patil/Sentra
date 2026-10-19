@@ -186,6 +186,15 @@ body {
     border-bottom-left-radius: 4px;
 }
 
+.chat-system {
+    align-self: center;
+    background-color: rgba(59, 130, 246, 0.1);
+    border: 1px dashed var(--accent);
+    color: #93c5fd;
+    font-size: 0.88rem;
+    text-align: center;
+}
+
 .chat-input-container {
     padding: 20px 24px;
     background-color: var(--bg-panel);

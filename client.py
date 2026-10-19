@@ -5,7 +5,7 @@ import json
 SERVER_URL = "http://localhost:8000/v1/chat/completions"
 API_KEY = "dbeca5a1-66bf-4254-9aa4-f6d99e9eb62d"
 
-def send_prompt(prompt, model="groq"):
+def send_prompt(prompt, model="groq/llama-3.3-70b-versatile"):
     headers = {
         "Authorization": f"Bearer {API_KEY}",
         "Content-Type": "application/json"
@@ -20,10 +20,13 @@ def send_prompt(prompt, model="groq"):
         if response.status_code == 200:
             res_json = response.json()
             if "choices" in res_json:
-                print(f"\n[SUCCESS]:\n")
+                cache_tag = " [CACHED]" if res_json.get("cache_hit") else ""
+                print(f"\n[SUCCESS{cache_tag}]:\n")
                 print(res_json["choices"][0]["message"]["content"])
             else:
-                print(f"\n[PENDING]: {res_json.get('message')}")
+                req_id = res_json.get('request_id')
+                print(f"\n[PENDING APPROVAL]: {res_json.get('message')}")
+                print(f"Check status at: http://localhost:8000/v1/requests/{req_id}")
         elif response.status_code == 403:
             print(f"\n[BLOCKED] Safety Guardrail Triggered:\n")
             print(response.json().get("detail") or response.json().get("error"))

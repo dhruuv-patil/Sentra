@@ -90,18 +90,16 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = await response.json();
 
             if (!response.ok) {
-                // Remove the failed message from history so the user can try again or change prompt
                 conversationHistory.pop();
-
-                if (data.status === "Pending Approval") {
-                    appendChat('error', `High-Risk Request Blocked.\nReason: ${data.message}\nRequest ID: ${data.request_id}`);
-                } else {
-                    appendChat('error', `Error: ${data.error || data.detail || 'Unknown error'}`);
-                }
-            } else {
+                appendChat('error', `Security Block / Error: ${data.error || data.detail || 'Request rejected by gateway.'}`);
+            } else if (data.status === "Pending Approval") {
+                appendChat('system', `⏳ High-Risk Interaction Detected\nQueued for Administrator Review (Request ID: ${data.request_id})\nPolling for approval decision...`);
+                pollForApproval(data.request_id);
+            } else if (data.choices && data.choices.length > 0) {
                 const reply = data.choices[0].message.content;
                 conversationHistory.push({ role: "assistant", content: reply });
-                appendChat('bot', reply);
+                const prefix = data.cache_hit ? '⚡ [Cached Response]:\n' : '';
+                appendChat('bot', prefix + reply);
             }
         } catch (error) {
             conversationHistory.pop();
@@ -109,6 +107,35 @@ document.addEventListener('DOMContentLoaded', () => {
         } finally {
             setLoadingState(false);
         }
+    }
+
+    function pollForApproval(requestId) {
+        let attempts = 0;
+        const maxAttempts = 40; // 40 * 2s = 80s
+        const pollInterval = setInterval(async () => {
+            attempts++;
+            if (attempts > maxAttempts) {
+                clearInterval(pollInterval);
+                appendChat('system', `Timed out waiting for admin approval on request ${requestId}.`);
+                return;
+            }
+            try {
+                const res = await fetch(`/v1/requests/${requestId}`);
+                if (res.ok) {
+                    const statusData = await res.json();
+                    if (statusData.status === "Approved") {
+                        clearInterval(pollInterval);
+                        conversationHistory.push({ role: "assistant", content: statusData.response });
+                        appendChat('bot', `✅ [Admin Approved & Executed]:\n${statusData.response}`);
+                    } else if (statusData.status === "Denied") {
+                        clearInterval(pollInterval);
+                        appendChat('error', `❌ [Admin Denied Request]:\n${statusData.response || 'Rejected by policy administrator.'}`);
+                    }
+                }
+            } catch (err) {
+                // Ignore transient network errors
+            }
+        }, 2000);
     }
 
     function appendChat(role, text) {
