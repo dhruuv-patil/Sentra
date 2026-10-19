@@ -86,7 +86,7 @@ class Repository:
         df = pd.read_sql_query("SELECT * FROM approval_queue ORDER BY created_at DESC", conn)
         conn.close()
         if not df.empty and 'response' in df.columns:
-            df['response'] = df['response'].apply(lambda x: crypto.decrypt(x) if x and x.startswith('gAAAAA') else x)
+            df['response'] = df['response'].apply(lambda x: crypto.decrypt(x) if isinstance(x, str) and x.startswith('gAAAAA') else x)
         return df
 
     @staticmethod

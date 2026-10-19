@@ -131,8 +131,8 @@ def run_dashboard():
         conn = Database.get_connection()
         df = pd.read_sql_query("SELECT * FROM request_logs ORDER BY created_at DESC LIMIT 200", conn)
         conn.close()
-        if not df.empty:
-            df['response'] = df['response'].apply(crypto.decrypt)
+        if not df.empty and 'response' in df.columns:
+            df['response'] = df['response'].apply(lambda x: crypto.decrypt(x) if isinstance(x, str) and x.startswith('gAAAAA') else x)
             st.dataframe(df, use_container_width=True)
         else:
             st.info("Audit log is currently empty.")
