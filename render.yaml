@@ -1,0 +1,44 @@
+services:
+  # 1. Security Gateway API
+  - type: web
+    name: llm-security-api
+    env: docker
+    dockerfilePath: ./Dockerfile
+    plan: free # Change to a higher plan if needed
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ENCRYPTION_KEY
+        description: "Fernet key for log encryption (Generate using: python -c 'from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())')"
+      - key: GROQ_API_KEY
+        sync: false
+      - key: PORT
+        value: 8000
+    healthCheckPath: /
+
+  # 2. Analytics Dashboard (Streamlit)
+  - type: web
+    name: llm-security-dashboard
+    env: python
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "python run_dashboard.py"
+    plan: free
+    envVars:
+      - key: SECRET_KEY
+        fromService:
+          name: llm-security-api
+          type: web
+          envVarKey: SECRET_KEY
+      - key: ENCRYPTION_KEY
+        fromService:
+          name: llm-security-api
+          type: web
+          envVarKey: ENCRYPTION_KEY
+      - key: API_HOST
+        fromService:
+          name: llm-security-api
+          type: web
+          property: host
+      - key: API_PORT
+        value: 80
+    healthCheckPath: /

@@ -1,0 +1,12 @@
+.venv
+__pycache__
+*.pyc
+.git
+.gitignore
+.history
+.env
+llm_gateway.db
+logs/
+data/*.db
+*.log
+.DS_Store

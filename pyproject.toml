@@ -1,0 +1,43 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llm-security-gateway"
+version = "2.0.0"
+description = "A robust, middleware-based security gateway and observability suite for Large Language Models."
+readme = "README.md"
+authors = [
+    { name = "Dhruv Patil", email = "dhruvpatil61105@email.com" }
+]
+license = { text = "MIT" }
+requires-python = ">=3.10"
+keywords = ["llm", "security", "guardrails", "fastapi", "ai-safety", "prompt-injection", "pii-redaction"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Topic :: Security",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = [
+    "fastapi",
+    "uvicorn",
+    "requests",
+    "cryptography",
+    "pydantic",
+    "websockets",
+    "python-dotenv",
+    "jinja2",
+    "streamlit",
+    "pandas",
+    "plotly",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/dhruuv-patil/llm-security-gateway"
+"Repository" = "https://github.com/dhruuv-patil/llm-security-gateway.git"
+"Bug Tracker" = "https://github.com/dhruuv-patil/llm-security-gateway/issues"
