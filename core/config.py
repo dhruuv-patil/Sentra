@@ -15,6 +15,12 @@ class Config:
     # API Keys
     GROQ_API_KEY = os.getenv("GROQ_API_KEY")
     OLLAMA_URL = os.getenv("OLLAMA_URL", "http://localhost:11434")
+
+    # Limits & Timeouts
+    RATE_LIMIT_RPM = int(os.getenv("RATE_LIMIT_RPM", "60"))
+    MAX_REQUEST_BYTES = int(os.getenv("MAX_REQUEST_BYTES", "131072"))  # 128 KB
+    UPSTREAM_TIMEOUT = float(os.getenv("UPSTREAM_TIMEOUT", "15.0"))
+
     # Server
     API_HOST = os.getenv("API_HOST", "0.0.0.0")
     API_PORT = int(os.getenv("PORT", os.getenv("API_PORT", 8000)))

@@ -1,12 +1,18 @@
 import pytest
 from fastapi.testclient import TestClient
+from unittest.mock import patch
 from app.server import app
 from core.cache import cache
+from core.config import config
+from data.database import Database
 
 @pytest.fixture
 def client():
     cache.clear()
-    return TestClient(app)
+    c = TestClient(app)
+    # Default authorized test client with Admin Master Bearer token
+    c.headers.update({"Authorization": f"Bearer {config.SECRET_KEY}"})
+    return c
 
 def test_health_endpoint(client):
     res = client.get("/api/health")
@@ -94,3 +100,123 @@ def test_empty_messages_validation(client):
     }
     res = client.post("/v1/chat/completions", json=payload)
     assert res.status_code == 422 # Pydantic validation error
+
+# ---------------------------------------------------------------------------
+# Phase 1: Security & Correctness Rigorous Tests
+# ---------------------------------------------------------------------------
+def test_auth_missing_token_returns_401():
+    unauth_client = TestClient(app)
+    payload = {
+        "model": "groq/llama-3.3-70b-versatile",
+        "messages": [{"role": "user", "content": "Hello without token"}]
+    }
+    res = unauth_client.post("/v1/chat/completions", json=payload)
+    assert res.status_code == 401
+    assert "Unauthorized" in res.json()["detail"]
+
+def test_auth_invalid_token_returns_401():
+    bad_client = TestClient(app)
+    bad_client.headers["Authorization"] = "Bearer completely_fake_invalid_key_99999"
+    payload = {
+        "model": "groq/llama-3.3-70b-versatile",
+        "messages": [{"role": "user", "content": "Hello with bad token"}]
+    }
+    res = bad_client.post("/v1/chat/completions", json=payload)
+    assert res.status_code == 401
+    assert "Unauthorized" in res.json()["detail"]
+
+def test_non_admin_client_cannot_access_admin_endpoints():
+    # Use client token with 'read' scope (sg_test_11a84f3cd789e023ba78cc from seed)
+    client_scoped = TestClient(app)
+    client_scoped.headers["Authorization"] = "Bearer sg_test_11a84f3cd789e023ba78cc"
+
+    # Chat completion is allowed for this client
+    chat_res = client_scoped.post("/v1/chat/completions", json={
+        "model": "groq/llama-3.3-70b-versatile",
+        "messages": [{"role": "user", "content": "Normal safe prompt"}]
+    })
+    assert chat_res.status_code == 200
+
+    # Admin-only endpoints must return 403 Forbidden
+    approve_res = client_scoped.post("/api/approve/any-id")
+    assert approve_res.status_code == 403
+
+    logs_res = client_scoped.get("/api/logs")
+    assert logs_res.status_code == 403
+
+    clear_res = client_scoped.post("/api/cache/clear")
+    assert clear_res.status_code == 403
+
+def test_demo_mode_response_headers_and_field(client):
+    # Without live GROQ_API_KEY, Groq provider falls back to explicit demo mode
+    payload = {
+        "model": "groq/llama-3.3-70b-versatile",
+        "messages": [{"role": "user", "content": "Explain symmetric vs asymmetric encryption"}]
+    }
+    res = client.post("/v1/chat/completions", json=payload)
+    assert res.status_code == 200
+    assert res.headers.get("X-Gateway-Mode") in ("demo", "live", "cached")
+    data = res.json()
+    assert "mode" in data
+    assert data["mode"] in ("demo", "live", "cached")
+
+def test_pii_never_stored_in_plaintext_in_db(client):
+    raw_email = "victim_audit_check@corporate-secrets.com"
+    raw_ssn = "987-65-4321"
+    prompt_with_pii = f"Please contact {raw_email} regarding SSN {raw_ssn}"
+
+    payload = {
+        "model": "groq/llama-3.3-70b-versatile",
+        "messages": [{"role": "user", "content": prompt_with_pii}],
+        "user": "pii_tester"
+    }
+
+    res = client.post("/v1/chat/completions", json=payload)
+    assert res.status_code in (200, 403)
+
+    # Verify directly inside SQLite database that raw PII was NEVER stored plaintext
+    conn = Database.get_connection()
+    c = conn.cursor()
+
+    req_logs = c.execute("SELECT prompt FROM request_logs").fetchall()
+    approval_logs = c.execute("SELECT prompt FROM approval_queue").fetchall()
+    harmful_logs = c.execute("SELECT prompt FROM harmful_logs").fetchall()
+    conn.close()
+
+    all_stored_prompts = [r[0] for r in req_logs + approval_logs + harmful_logs if r[0]]
+
+    for stored in all_stored_prompts:
+        assert raw_email not in stored, f"Plaintext email leaked into database prompt: {stored}"
+        assert raw_ssn not in stored, f"Plaintext SSN leaked into database prompt: {stored}"
+
+def test_rate_limiting_enforcement(client):
+    from app.api.routes import rate_limiter
+    rate_limiter.reset()
+
+    # Configure a custom fast rate limiter check
+    tenant = "rate_limit_test_client"
+    for _ in range(60):
+        allowed, _ = rate_limiter.check_rate_limit(tenant)
+        assert allowed is True
+
+    # 61st request within 60s must be blocked
+    allowed, retry_after = rate_limiter.check_rate_limit(tenant)
+    assert allowed is False
+    assert retry_after > 0
+    rate_limiter.reset()
+
+def test_malformed_upstream_response_handled_gracefully(client):
+    payload = {
+        "model": "groq/llama-3.3-70b-versatile",
+        "messages": [{"role": "user", "content": "Tell me a joke"}]
+    }
+
+    # Simulate upstream returning an error dictionary
+    with patch("core.llm.provider_dispatcher.dispatcher.complete") as mock_comp:
+        mock_comp.return_value = {
+            "error": {"message": "Upstream Groq 429 Rate Limit Exceeded", "code": 429}
+        }
+        res = client.post("/v1/chat/completions", json=payload)
+        assert res.status_code == 429
+        assert "Rate Limit Exceeded" in res.json()["error"]
+        assert "request_id" in res.json()

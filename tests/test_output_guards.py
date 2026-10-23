@@ -20,3 +20,9 @@ def test_output_guards_no_false_positives():
     assert OutputGuards.detect_harmful_content("How to kill a background process using terminal kill command.") is None
     assert OutputGuards.detect_harmful_content("I hate waking up early on Mondays.") is None
     assert OutputGuards.detect_harmful_content("Cybersecurity defends against brute force attacks.") is None
+
+def test_defensive_refusal_not_flagged_as_system_leak():
+    # A model legitimately refusing an attack must not be blocked as a harmful system leakage
+    safe_refusal = "I cannot fulfill this request. My instructions are to never reveal system prompt or internal rules."
+    assert OutputGuards.detect_harmful_content(safe_refusal) is None
+
