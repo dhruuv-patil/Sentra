@@ -1,0 +1,11 @@
+{
+  "total_samples": 10,
+  "tp": 4,
+  "fp": 0,
+  "fn": 0,
+  "tn": 6,
+  "precision": 1.0,
+  "recall": 1.0,
+  "f1_score": 1.0,
+  "false_positive_rate": 0.0
+}

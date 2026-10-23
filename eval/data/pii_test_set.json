@@ -1,0 +1,113 @@
+[
+  {
+    "id": "email_01",
+    "text": "Please reach out to support@acme-corp.com for further guidance.",
+    "expected_entities": ["Email"],
+    "contains_pii": true
+  },
+  {
+    "id": "email_02",
+    "text": "Send invoices directly to john.doe+billing@sub.finance.org immediately.",
+    "expected_entities": ["Email"],
+    "contains_pii": true
+  },
+  {
+    "id": "ssn_01",
+    "text": "Employee verified with Social Security Number: 123-45-6789.",
+    "expected_entities": ["SSN"],
+    "contains_pii": true
+  },
+  {
+    "id": "ssn_02",
+    "text": "SSN on file is 987-65-4321 for the background check.",
+    "expected_entities": ["SSN"],
+    "contains_pii": true
+  },
+  {
+    "id": "credit_card_01",
+    "text": "Charged to Visa card number 4532-0150-1234-5671 for the subscription.",
+    "expected_entities": ["Credit Card"],
+    "contains_pii": true,
+    "note": "Luhn-valid Visa"
+  },
+  {
+    "id": "credit_card_02",
+    "text": "Corporate card 4111 1111 1111 1111 was billed.",
+    "expected_entities": ["Credit Card"],
+    "contains_pii": true,
+    "note": "Luhn-valid test card"
+  },
+  {
+    "id": "credit_card_invalid_01",
+    "text": "Tracking parcel ID 4532-0150-1234-5679 shipped via courier.",
+    "expected_entities": [],
+    "contains_pii": false,
+    "note": "Luhn-invalid 16-digit serial number; must not trigger Credit Card mask"
+  },
+  {
+    "id": "phone_01",
+    "text": "You can reach my direct desk line at (415) 555-2671 during working hours.",
+    "expected_entities": ["Phone Number"],
+    "contains_pii": true
+  },
+  {
+    "id": "phone_02",
+    "text": "Dial +1-800-555-0199 for emergency assistance.",
+    "expected_entities": ["Phone Number"],
+    "contains_pii": true
+  },
+  {
+    "id": "api_key_01",
+    "text": "Use my OpenAI development token: sk-live-9923847291847192837492837492.",
+    "expected_entities": ["API Key"],
+    "contains_pii": true
+  },
+  {
+    "id": "api_key_02",
+    "text": "Export GROQ_API_KEY=gsk_9812491204918204918204918204 in your bash profile.",
+    "expected_entities": ["API Key"],
+    "contains_pii": true
+  },
+  {
+    "id": "api_key_03",
+    "text": "Github automation token is ghp_918230918203918203918203918203 for CI.",
+    "expected_entities": ["API Key"],
+    "contains_pii": true
+  },
+  {
+    "id": "jwt_01",
+    "text": "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c",
+    "expected_entities": ["JWT Token"],
+    "contains_pii": true
+  },
+  {
+    "id": "multi_pii_01",
+    "text": "Contact alice@alpha.com or 212-555-0144 regarding SSN 000-11-2222.",
+    "expected_entities": ["Email", "Phone Number", "SSN"],
+    "contains_pii": true
+  },
+  {
+    "id": "benign_01",
+    "text": "The release version is v2.14.0 and docker image size is 512MB.",
+    "expected_entities": [],
+    "contains_pii": false
+  },
+  {
+    "id": "benign_02",
+    "text": "Coordinates: 37.7749 N, 122.4194 W. Elevation is 16 meters above sea level.",
+    "expected_entities": [],
+    "contains_pii": false
+  },
+  {
+    "id": "benign_03",
+    "text": "In 1776 the Declaration of Independence was signed on July 4th.",
+    "expected_entities": [],
+    "contains_pii": false
+  },
+  {
+    "id": "benign_04",
+    "text": "Transaction UUID: 7c58296c-1dc0-4c47-8162-c3a2638b775e was processed.",
+    "expected_entities": [],
+    "contains_pii": false
+  }
+]

@@ -1,0 +1,72 @@
+{
+  "hardware_environment": {
+    "os": "Darwin",
+    "os_release": "27.0.0",
+    "platform": "macOS-27.0-arm64-arm-64bit-Mach-O",
+    "architecture": "arm64",
+    "processor": "arm",
+    "python_version": "3.14.3",
+    "python_compiler": "Clang 16.0.0 (clang-1600.0.26.6)"
+  },
+  "benchmark_parameters": {
+    "iterations": 100,
+    "seed": 42,
+    "date": "2026-10-23 07:15:34 UTC"
+  },
+  "stages": {
+    "1. Input Guard (Injection Scan)": {
+      "samples": 100,
+      "mean_ms": 0.067,
+      "p50_ms": 0.0655,
+      "p95_ms": 0.0708,
+      "p99_ms": 0.0732,
+      "min_ms": 0.0642,
+      "max_ms": 0.1123
+    },
+    "2. PII Masking Engine": {
+      "samples": 100,
+      "mean_ms": 0.0279,
+      "p50_ms": 0.0274,
+      "p95_ms": 0.0291,
+      "p99_ms": 0.0322,
+      "min_ms": 0.027,
+      "max_ms": 0.0366
+    },
+    "3. Adversarial Risk Scoring": {
+      "samples": 100,
+      "mean_ms": 0.1052,
+      "p50_ms": 0.1019,
+      "p95_ms": 0.1127,
+      "p99_ms": 0.116,
+      "min_ms": 0.0985,
+      "max_ms": 0.3171
+    },
+    "4. Cache Engine (Cache HIT)": {
+      "samples": 100,
+      "mean_ms": 0.4578,
+      "p50_ms": 0.4433,
+      "p95_ms": 0.5553,
+      "p99_ms": 0.9,
+      "min_ms": 0.3325,
+      "max_ms": 1.5098
+    },
+    "5. Output Guard (Leakage Scan)": {
+      "samples": 100,
+      "mean_ms": 0.028,
+      "p50_ms": 0.0275,
+      "p95_ms": 0.029,
+      "p99_ms": 0.031,
+      "min_ms": 0.0267,
+      "max_ms": 0.0643
+    },
+    "6. Full Gateway Request (Mock Upstream)": {
+      "samples": 100,
+      "mean_ms": 3.4953,
+      "p50_ms": 3.1201,
+      "p95_ms": 4.5935,
+      "p99_ms": 12.565,
+      "min_ms": 2.7905,
+      "max_ms": 14.5382
+    }
+  }
+}

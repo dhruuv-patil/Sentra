@@ -1,0 +1,257 @@
+[
+  {
+    "id": "email_01",
+    "text": "Please reach out to support@acme-corp.com for further guidance.",
+    "expected": [
+      "Email"
+    ],
+    "gateway_detected": [
+      "Email"
+    ],
+    "gateway_sanitized": "Please reach out to [EMAIL_REDACTED] for further guidance.",
+    "presidio_detected": [
+      "Email"
+    ],
+    "contains_pii": true,
+    "gateway_correct": true
+  },
+  {
+    "id": "email_02",
+    "text": "Send invoices directly to john.doe+billing@sub.finance.org immediately.",
+    "expected": [
+      "Email"
+    ],
+    "gateway_detected": [
+      "Email"
+    ],
+    "gateway_sanitized": "Send invoices directly to [EMAIL_REDACTED] immediately.",
+    "presidio_detected": [
+      "Email"
+    ],
+    "contains_pii": true,
+    "gateway_correct": true
+  },
+  {
+    "id": "ssn_01",
+    "text": "Employee verified with Social Security Number: 123-45-6789.",
+    "expected": [
+      "SSN"
+    ],
+    "gateway_detected": [
+      "SSN"
+    ],
+    "gateway_sanitized": "Employee verified with Social Security Number: [SSN_REDACTED].",
+    "presidio_detected": [],
+    "contains_pii": true,
+    "gateway_correct": true
+  },
+  {
+    "id": "ssn_02",
+    "text": "SSN on file is 987-65-4321 for the background check.",
+    "expected": [
+      "SSN"
+    ],
+    "gateway_detected": [
+      "SSN"
+    ],
+    "gateway_sanitized": "SSN on file is [SSN_REDACTED] for the background check.",
+    "presidio_detected": [
+      "SSN"
+    ],
+    "contains_pii": true,
+    "gateway_correct": true
+  },
+  {
+    "id": "credit_card_01",
+    "text": "Charged to Visa card number 4532-0150-1234-5671 for the subscription.",
+    "expected": [
+      "Credit Card"
+    ],
+    "gateway_detected": [
+      "Credit Card"
+    ],
+    "gateway_sanitized": "Charged to Visa card number [CREDIT_CARD_REDACTED] for the subscription.",
+    "presidio_detected": [
+      "Credit Card"
+    ],
+    "contains_pii": true,
+    "gateway_correct": true
+  },
+  {
+    "id": "credit_card_02",
+    "text": "Corporate card 4111 1111 1111 1111 was billed.",
+    "expected": [
+      "Credit Card"
+    ],
+    "gateway_detected": [
+      "Credit Card"
+    ],
+    "gateway_sanitized": "Corporate card [CREDIT_CARD_REDACTED] was billed.",
+    "presidio_detected": [
+      "Credit Card"
+    ],
+    "contains_pii": true,
+    "gateway_correct": true
+  },
+  {
+    "id": "credit_card_invalid_01",
+    "text": "Tracking parcel ID 4532-0150-1234-5679 shipped via courier.",
+    "expected": [],
+    "gateway_detected": [],
+    "gateway_sanitized": "Tracking parcel ID 4532-0150-1234-5679 shipped via courier.",
+    "presidio_detected": [],
+    "contains_pii": false,
+    "gateway_correct": true
+  },
+  {
+    "id": "phone_01",
+    "text": "You can reach my direct desk line at (415) 555-2671 during working hours.",
+    "expected": [
+      "Phone Number"
+    ],
+    "gateway_detected": [
+      "Phone Number"
+    ],
+    "gateway_sanitized": "You can reach my direct desk line at ([PHONE_REDACTED] during working hours.",
+    "presidio_detected": [
+      "Phone Number"
+    ],
+    "contains_pii": true,
+    "gateway_correct": true
+  },
+  {
+    "id": "phone_02",
+    "text": "Dial +1-800-555-0199 for emergency assistance.",
+    "expected": [
+      "Phone Number"
+    ],
+    "gateway_detected": [
+      "Phone Number"
+    ],
+    "gateway_sanitized": "Dial +[PHONE_REDACTED] for emergency assistance.",
+    "presidio_detected": [
+      "Phone Number"
+    ],
+    "contains_pii": true,
+    "gateway_correct": true
+  },
+  {
+    "id": "api_key_01",
+    "text": "Use my OpenAI development token: sk-live-9923847291847192837492837492.",
+    "expected": [
+      "API Key"
+    ],
+    "gateway_detected": [
+      "API Key"
+    ],
+    "gateway_sanitized": "Use my OpenAI development token: [API_KEY_REDACTED].",
+    "presidio_detected": [],
+    "contains_pii": true,
+    "gateway_correct": true
+  },
+  {
+    "id": "api_key_02",
+    "text": "Export GROQ_API_KEY=gsk_9812491204918204918204918204 in your bash profile.",
+    "expected": [
+      "API Key"
+    ],
+    "gateway_detected": [
+      "API Key"
+    ],
+    "gateway_sanitized": "Export GROQ_API_KEY=[API_KEY_REDACTED] in your bash profile.",
+    "presidio_detected": [],
+    "contains_pii": true,
+    "gateway_correct": true
+  },
+  {
+    "id": "api_key_03",
+    "text": "Github automation token is ghp_918230918203918203918203918203 for CI.",
+    "expected": [
+      "API Key"
+    ],
+    "gateway_detected": [
+      "API Key"
+    ],
+    "gateway_sanitized": "Github automation token is [API_KEY_REDACTED] for CI.",
+    "presidio_detected": [],
+    "contains_pii": true,
+    "gateway_correct": true
+  },
+  {
+    "id": "jwt_01",
+    "text": "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c",
+    "expected": [
+      "JWT Token"
+    ],
+    "gateway_detected": [
+      "JWT Token"
+    ],
+    "gateway_sanitized": "Authorization: Bearer [JWT_REDACTED]",
+    "presidio_detected": [],
+    "contains_pii": true,
+    "gateway_correct": true
+  },
+  {
+    "id": "multi_pii_01",
+    "text": "Contact alice@alpha.com or 212-555-0144 regarding SSN 000-11-2222.",
+    "expected": [
+      "Email",
+      "Phone Number",
+      "SSN"
+    ],
+    "gateway_detected": [
+      "SSN",
+      "Email",
+      "Phone Number"
+    ],
+    "gateway_sanitized": "Contact [EMAIL_REDACTED] or [PHONE_REDACTED] regarding SSN [SSN_REDACTED].",
+    "presidio_detected": [
+      "Email",
+      "Phone Number"
+    ],
+    "contains_pii": true,
+    "gateway_correct": true
+  },
+  {
+    "id": "benign_01",
+    "text": "The release version is v2.14.0 and docker image size is 512MB.",
+    "expected": [],
+    "gateway_detected": [],
+    "gateway_sanitized": "The release version is v2.14.0 and docker image size is 512MB.",
+    "presidio_detected": [],
+    "contains_pii": false,
+    "gateway_correct": true
+  },
+  {
+    "id": "benign_02",
+    "text": "Coordinates: 37.7749 N, 122.4194 W. Elevation is 16 meters above sea level.",
+    "expected": [],
+    "gateway_detected": [],
+    "gateway_sanitized": "Coordinates: 37.7749 N, 122.4194 W. Elevation is 16 meters above sea level.",
+    "presidio_detected": [
+      "Phone Number"
+    ],
+    "contains_pii": false,
+    "gateway_correct": true
+  },
+  {
+    "id": "benign_03",
+    "text": "In 1776 the Declaration of Independence was signed on July 4th.",
+    "expected": [],
+    "gateway_detected": [],
+    "gateway_sanitized": "In 1776 the Declaration of Independence was signed on July 4th.",
+    "presidio_detected": [],
+    "contains_pii": false,
+    "gateway_correct": true
+  },
+  {
+    "id": "benign_04",
+    "text": "Transaction UUID: 7c58296c-1dc0-4c47-8162-c3a2638b775e was processed.",
+    "expected": [],
+    "gateway_detected": [],
+    "gateway_sanitized": "Transaction UUID: 7c58296c-1dc0-4c47-8162-c3a2638b775e was processed.",
+    "presidio_detected": [],
+    "contains_pii": false,
+    "gateway_correct": true
+  }
+]
