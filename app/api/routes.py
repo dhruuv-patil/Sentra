@@ -175,7 +175,16 @@ async def chat_completions(
     })
 
     # 1. Multi-Message Prompt Injection Guard: Evaluates ALL messages (system, user, assistant)
-    is_injection, injection_detail = InputGuards.detect_messages_injection(request.messages)
+    from core.security.detectors import detector
+    is_injection = False
+    injection_detail = None
+    for idx, msg in enumerate(request.messages):
+        det_res = detector.predict(msg.content)
+        if det_res.is_injection:
+            is_injection = True
+            injection_detail = f"Message index {idx} ({msg.role}): {det_res.detail}"
+            break
+
     if is_injection:
         await manager.broadcast({
             "type": "input_guards_evaluated",

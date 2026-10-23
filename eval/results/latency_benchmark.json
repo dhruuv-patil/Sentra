@@ -11,62 +11,62 @@
   "benchmark_parameters": {
     "iterations": 100,
     "seed": 42,
-    "date": "2026-10-23 07:15:34 UTC"
+    "date": "2026-10-23 07:24:12 UTC"
   },
   "stages": {
     "1. Input Guard (Injection Scan)": {
       "samples": 100,
-      "mean_ms": 0.067,
-      "p50_ms": 0.0655,
-      "p95_ms": 0.0708,
-      "p99_ms": 0.0732,
-      "min_ms": 0.0642,
-      "max_ms": 0.1123
+      "mean_ms": 0.0682,
+      "p50_ms": 0.0671,
+      "p95_ms": 0.0713,
+      "p99_ms": 0.0923,
+      "min_ms": 0.0654,
+      "max_ms": 0.1177
     },
     "2. PII Masking Engine": {
       "samples": 100,
-      "mean_ms": 0.0279,
-      "p50_ms": 0.0274,
-      "p95_ms": 0.0291,
-      "p99_ms": 0.0322,
-      "min_ms": 0.027,
-      "max_ms": 0.0366
+      "mean_ms": 0.0284,
+      "p50_ms": 0.028,
+      "p95_ms": 0.0313,
+      "p99_ms": 0.0344,
+      "min_ms": 0.0274,
+      "max_ms": 0.0453
     },
     "3. Adversarial Risk Scoring": {
       "samples": 100,
-      "mean_ms": 0.1052,
-      "p50_ms": 0.1019,
-      "p95_ms": 0.1127,
-      "p99_ms": 0.116,
-      "min_ms": 0.0985,
-      "max_ms": 0.3171
+      "mean_ms": 0.1063,
+      "p50_ms": 0.1028,
+      "p95_ms": 0.1119,
+      "p99_ms": 0.1315,
+      "min_ms": 0.101,
+      "max_ms": 0.3404
     },
     "4. Cache Engine (Cache HIT)": {
       "samples": 100,
-      "mean_ms": 0.4578,
-      "p50_ms": 0.4433,
-      "p95_ms": 0.5553,
-      "p99_ms": 0.9,
-      "min_ms": 0.3325,
-      "max_ms": 1.5098
+      "mean_ms": 0.4305,
+      "p50_ms": 0.4357,
+      "p95_ms": 0.5079,
+      "p99_ms": 0.5445,
+      "min_ms": 0.3318,
+      "max_ms": 0.6177
     },
     "5. Output Guard (Leakage Scan)": {
       "samples": 100,
-      "mean_ms": 0.028,
-      "p50_ms": 0.0275,
-      "p95_ms": 0.029,
-      "p99_ms": 0.031,
-      "min_ms": 0.0267,
-      "max_ms": 0.0643
+      "mean_ms": 0.0289,
+      "p50_ms": 0.0282,
+      "p95_ms": 0.03,
+      "p99_ms": 0.0339,
+      "min_ms": 0.0274,
+      "max_ms": 0.0728
     },
     "6. Full Gateway Request (Mock Upstream)": {
       "samples": 100,
-      "mean_ms": 3.4953,
-      "p50_ms": 3.1201,
-      "p95_ms": 4.5935,
-      "p99_ms": 12.565,
-      "min_ms": 2.7905,
-      "max_ms": 14.5382
+      "mean_ms": 3.7571,
+      "p50_ms": 3.5279,
+      "p95_ms": 4.3273,
+      "p99_ms": 5.3722,
+      "min_ms": 3.0945,
+      "max_ms": 18.0603
     }
   }
 }

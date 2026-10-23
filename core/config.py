@@ -21,6 +21,10 @@ class Config:
     MAX_REQUEST_BYTES = int(os.getenv("MAX_REQUEST_BYTES", "131072"))  # 128 KB
     UPSTREAM_TIMEOUT = float(os.getenv("UPSTREAM_TIMEOUT", "15.0"))
 
+    # Pluggable Guardrails & ML Detector
+    DETECTOR_TYPE = os.getenv("DETECTOR_TYPE", "ensemble")  # regex | ml | ensemble
+    ML_THRESHOLD = float(os.getenv("ML_THRESHOLD", "0.5"))
+
     # Server
     API_HOST = os.getenv("API_HOST", "0.0.0.0")
     API_PORT = int(os.getenv("PORT", os.getenv("API_PORT", 8000)))
