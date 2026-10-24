@@ -1,24 +1,26 @@
-import os
-import sys
 import json
-import time
-import random
-import platform
 import logging
-import numpy as np
+import os
+import platform
+import random
+import sys
+import time
 from unittest.mock import patch
+
+import numpy as np
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT_DIR = os.path.dirname(BASE_DIR)
 if ROOT_DIR not in sys.path:
     sys.path.insert(0, ROOT_DIR)
 
-from core.security.input_guards import InputGuards
-from core.security.output_guards import OutputGuards
+from fastapi.testclient import TestClient
+
+from app.server import app
 from core.cache import cache
 from core.config import config
-from app.server import app
-from fastapi.testclient import TestClient
+from core.security.input_guards import InputGuards
+from core.security.output_guards import OutputGuards
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = logging.getLogger("eval.latency")

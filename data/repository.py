@@ -1,10 +1,13 @@
-from datetime import datetime, timezone
-import time
 import hmac
-from data.database import Database
-from core.crypto import crypto
+import time
+from datetime import datetime, timezone
+from typing import Any, Optional
+
 from core.config import config
+from core.crypto import crypto
 from core.security.input_guards import InputGuards
+from data.database import Database
+
 
 class Repository:
     @staticmethod
@@ -101,7 +104,7 @@ class Repository:
         c.execute("""INSERT INTO request_logs 
                      (request_id, user_id, model, prompt, response, tokens, cost, risk_score, latency, created_at)
                      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
-                  (request_id, user_id, model, sanitized_prompt, encrypted_response, tokens, cost, risk_score, latency, 
+                  (request_id, user_id, model, sanitized_prompt, encrypted_response, tokens, cost, risk_score, latency,
                    datetime.now(timezone.utc).isoformat()))
         conn.commit()
         conn.close()
@@ -115,7 +118,7 @@ class Repository:
         c.execute("""INSERT INTO harmful_logs 
                      (request_id, user_id, prompt, category, risk_score, created_at)
                      VALUES (?, ?, ?, ?, ?, ?)""",
-                  (request_id, user_id, sanitized_prompt, category, risk_score, 
+                  (request_id, user_id, sanitized_prompt, category, risk_score,
                    datetime.now(timezone.utc).isoformat()))
         conn.commit()
         conn.close()
@@ -170,7 +173,7 @@ class Repository:
         import pandas as pd
         df = pd.read_sql_query("SELECT * FROM approval_queue WHERE status='Pending' ORDER BY created_at DESC", conn)
         conn.close()
-        return df
+        return df.where(pd.notnull(df), None)
 
     @staticmethod
     def get_all_approvals():
@@ -180,7 +183,7 @@ class Repository:
         conn.close()
         if not df.empty and 'response' in df.columns:
             df['response'] = df['response'].apply(lambda x: crypto.decrypt(x) if isinstance(x, str) and x.startswith('gAAAAA') else x)
-        return df
+        return df.where(pd.notnull(df), None)
 
     @staticmethod
     def approve_request(request_id: str, reviewer: str = "admin") -> dict:
@@ -312,12 +315,12 @@ class Repository:
         }
 
     @staticmethod
-    def get_audit_logs(limit: int = 100, offset: int = 0, search: str = None, model: str = None, risk_filter: str = None) -> dict:
+    def get_audit_logs(limit: int = 100, offset: int = 0, search: Optional[str] = None, model: Optional[str] = None, risk_filter: Optional[str] = None) -> dict:
         conn = Database.get_connection()
         c = conn.cursor()
 
         query = "SELECT id, request_id, user_id, model, prompt, response, tokens, cost, risk_score, latency, created_at FROM request_logs WHERE 1=1"
-        params = []
+        params: list[Any] = []
 
         if search:
             query += " AND (prompt LIKE ? OR request_id LIKE ? OR user_id LIKE ?)"
@@ -408,12 +411,12 @@ class Repository:
         ]
 
     @staticmethod
-    def toggle_guardrail_policy(key: str, enabled: bool = None, action: str = None, sensitivity: float = None) -> dict:
+    def toggle_guardrail_policy(key: str, enabled: Optional[bool] = None, action: Optional[str] = None, sensitivity: Optional[float] = None) -> dict:
         conn = Database.get_connection()
         c = conn.cursor()
-        
+
         updates = []
-        params = []
+        params: list[Any] = []
         if enabled is not None:
             updates.append("enabled = ?")
             params.append(1 if enabled else 0)

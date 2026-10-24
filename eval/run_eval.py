@@ -1,7 +1,6 @@
+import logging
 import os
 import sys
-import json
-import logging
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT_DIR = os.path.dirname(BASE_DIR)
@@ -9,12 +8,12 @@ if ROOT_DIR not in sys.path:
     sys.path.insert(0, ROOT_DIR)
 
 from eval.data.download_datasets import main as run_download
-from eval.eval_prompt_injection import run_evaluation as run_injection_eval
-from eval.eval_pii import run_evaluation as run_pii_eval
-from eval.eval_output_guards import run_evaluation as run_output_eval
 from eval.eval_bypass import run_evaluation as run_bypass_eval
-from eval.eval_latency import run_latency_benchmark
 from eval.eval_detectors_comparison import run_comparison as run_detector_comparison
+from eval.eval_latency import run_latency_benchmark
+from eval.eval_output_guards import run_evaluation as run_output_eval
+from eval.eval_pii import run_evaluation as run_pii_eval
+from eval.eval_prompt_injection import run_evaluation as run_injection_eval
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = logging.getLogger("eval.master")
@@ -115,7 +114,7 @@ def generate_markdown_report(injection_res, pii_res, output_res, bypass_res, lat
 def main():
     logger.info("Starting Master Evaluation Harness...")
     run_download()
-    
+
     logger.info("\n>>> [1/6] Running Prompt Injection Detection Evaluation...")
     inj_res = run_injection_eval()
 

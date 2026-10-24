@@ -1,10 +1,5 @@
-import pytest
-from core.security.detectors import (
-    RegexDetector,
-    MLDetector,
-    EnsembleDetector,
-    get_detector
-)
+from core.security.detectors import EnsembleDetector, MLDetector, RegexDetector, get_detector
+
 
 def test_regex_detector():
     det = RegexDetector()

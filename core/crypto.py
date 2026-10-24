@@ -1,5 +1,7 @@
 import logging
+
 from cryptography.fernet import Fernet
+
 from core.config import config
 
 logger = logging.getLogger("gateway.crypto")
@@ -17,7 +19,7 @@ class CryptoManager:
                 return
             except Exception as e:
                 logger.warning(f"Invalid ENCRYPTION_KEY configured: {e}. Falling back to ephemeral key.")
-        
+
         # Ephemeral session key fallback to prevent data loss when ENCRYPTION_KEY is unset
         logger.warning("No valid ENCRYPTION_KEY set. Generating ephemeral in-memory Fernet key for session.")
         self.fernet = Fernet(Fernet.generate_key())

@@ -1,14 +1,17 @@
-import streamlit as st
-import pandas as pd
-import requests
 import time
+
+import pandas as pd
 import plotly.express as px
+import requests
+import streamlit as st
+
+from app.dashboard.ui_components import inject_custom_css
+from core.cache import cache
 from core.config import config
 from core.crypto import crypto
-from core.cache import cache
 from data.database import Database
 from data.repository import Repository
-from app.dashboard.ui_components import inject_custom_css
+
 
 def run_dashboard():
     st.set_page_config(page_title="LLM Gateway | Security Dashboard", layout="wide", page_icon="🛡️")
@@ -43,7 +46,7 @@ def run_dashboard():
         blocked = pd.read_sql_query("SELECT COUNT(*) FROM harmful_logs", conn).iloc[0,0]
         pending_count = pd.read_sql_query("SELECT COUNT(*) FROM approval_queue WHERE status='Pending'", conn).iloc[0,0]
         conn.close()
-        
+
         col1, col2, col3, col4, col5 = st.columns(5)
         col1.metric("Total Traffic", f"{total_reqs:,}")
         col2.metric("Token Consumption", f"{total_tokens:,}")
@@ -67,7 +70,7 @@ def run_dashboard():
                     with st.container(border=True):
                         st.markdown(f"**Request ID:** `{row['request_id']}` | **Model:** `{row['model']}` | **Submitted:** `{row['created_at']}`")
                         st.code(row['prompt'], language="markdown")
-                        
+
                         col_btn1, col_btn2, _ = st.columns([1, 1, 4])
                         with col_btn1:
                             if st.button("✅ Approve & Run", key=f"app_{row['request_id']}", use_container_width=True):
@@ -101,7 +104,7 @@ def run_dashboard():
         conn = Database.get_connection()
         df_logs = pd.read_sql_query("SELECT * FROM request_logs", conn)
         conn.close()
-        
+
         if df_logs.empty:
             st.warning("No analytics data available yet. Route prompts through port 8000 to generate telemetry.")
         else:

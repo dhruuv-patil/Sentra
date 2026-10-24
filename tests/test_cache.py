@@ -1,5 +1,5 @@
-import pytest
 from core.cache import cache
+
 
 def test_cache_lifecycle():
     model = "groq/llama-3.3-70b-versatile"
@@ -59,7 +59,7 @@ def test_cache_parameter_isolation():
     """Proves deterministic request (temp=0.0) never shares cache with creative (temp=1.0)."""
     model = "groq/llama-3.3-70b-versatile"
     prompt = "Generate test code"
-    
+
     cache.clear()
     cache.set(model, prompt, "Deterministic Output", tenant_id="t1", parameters={"temperature": 0.0})
 

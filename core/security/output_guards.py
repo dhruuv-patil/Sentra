@@ -1,5 +1,6 @@
 import re
 
+
 class OutputGuards:
     HARMFUL_PATTERNS = {
         "Violence & Weapons": [

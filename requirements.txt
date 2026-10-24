@@ -9,4 +9,5 @@ jinja2
 streamlit
 pandas
 plotly
-pytest
+scikit-learn
+joblib

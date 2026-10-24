@@ -1,16 +1,16 @@
-import os
-import sys
 import json
 import logging
-import joblib
-import pandas as pd
-import numpy as np
+import os
+import sys
 
+import joblib
+import numpy as np
+import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
-from sklearn.pipeline import Pipeline
+from sklearn.metrics import accuracy_score, confusion_matrix, f1_score, precision_score, recall_score
 from sklearn.model_selection import StratifiedKFold, cross_validate
-from sklearn.metrics import precision_score, recall_score, f1_score, accuracy_score, confusion_matrix
+from sklearn.pipeline import Pipeline
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT_DIR = os.path.dirname(BASE_DIR)
@@ -97,7 +97,6 @@ def train_and_evaluate(random_state: int = 42):
 
     # 3. Test on Held-Out Test Split (no leakage)
     y_pred = final_model.predict(X_test)
-    y_proba = final_model.predict_proba(X_test)[:, 1]
 
     cm = confusion_matrix(y_test, y_pred)
     tn, fp, fn, tp = cm.ravel()

@@ -29,8 +29,11 @@ Thumbs.db
 *.log
 server.log
 
-# Reports
+# Reports & Testing
 host_header_poisoning_report.json
+.coverage
+htmlcov/
+.pytest_cache/
 
 # IDE & History
 .history/

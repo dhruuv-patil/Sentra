@@ -1,5 +1,5 @@
+
 import requests
-import json
 
 # Configuration
 SERVER_URL = "http://localhost:8000/v1/chat/completions"
@@ -14,7 +14,7 @@ def send_prompt(prompt, model="groq/llama-3.3-70b-versatile"):
         "model": model,
         "messages": [{"role": "user", "content": prompt}]
     }
-    
+
     try:
         response = requests.post(SERVER_URL, headers=headers, json=data)
         if response.status_code == 200:
@@ -28,7 +28,7 @@ def send_prompt(prompt, model="groq/llama-3.3-70b-versatile"):
                 print(f"\n[PENDING APPROVAL]: {res_json.get('message')}")
                 print(f"Check status at: http://localhost:8000/v1/requests/{req_id}")
         elif response.status_code == 403:
-            print(f"\n[BLOCKED] Safety Guardrail Triggered:\n")
+            print("\n[BLOCKED] Safety Guardrail Triggered:\n")
             print(response.json().get("detail") or response.json().get("error"))
         else:
             print(f"\n[ERROR] Status Code: {response.status_code}")

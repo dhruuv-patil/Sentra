@@ -1,7 +1,7 @@
-import os
-import sys
 import json
 import logging
+import os
+import sys
 from collections import defaultdict
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -77,7 +77,7 @@ def run_evaluation():
 
     results_dir = os.path.join(BASE_DIR, "results")
     os.makedirs(results_dir, exist_ok=True)
-    
+
     with open(os.path.join(results_dir, "bypass_analysis_raw.json"), "w", encoding="utf-8") as f:
         json.dump(raw_results, f, indent=2)
 

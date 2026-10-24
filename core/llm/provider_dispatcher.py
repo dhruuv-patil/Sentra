@@ -1,6 +1,7 @@
+from core.config import config
 from core.llm.groq_client import GroqClient
 from core.llm.ollama_client import OllamaClient
-from core.config import config
+
 
 class ProviderDispatcher:
     def __init__(self):

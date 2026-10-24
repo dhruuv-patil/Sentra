@@ -1,6 +1,8 @@
-import os
 import logging
+import os
+
 import requests
+
 from core.config import config
 
 logger = logging.getLogger("gateway.groq")

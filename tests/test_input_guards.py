@@ -1,5 +1,5 @@
-import pytest
 from core.security.input_guards import InputGuards
+
 
 def test_prompt_injection_detection():
     # Direct injection attempts

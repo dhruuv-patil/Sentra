@@ -1,20 +1,29 @@
-.PHONY: test eval lint clean run run-dashboard
+.PHONY: test eval eval-smoke lint format ci clean run run-dashboard
 
 PYTHON := python3
 
 test:
-	$(PYTHON) -m pytest
+	$(PYTHON) -m pytest --cov=core --cov=app --cov=data --cov-fail-under=70
+
+test-fuzz:
+	$(PYTHON) -m pytest tests/test_fuzz_guards.py -v
 
 eval:
 	$(PYTHON) eval/run_eval.py
 
+eval-smoke:
+	$(PYTHON) eval/eval_smoke_test.py
+
 lint:
-	@if command -v ruff >/dev/null 2>&1; then \
-		ruff check .; \
-	else \
-		$(PYTHON) -m py_compile app/**/*.py core/**/*.py data/**/*.py tests/**/*.py eval/**/*.py; \
-		echo "Syntax check passed across all packages."; \
-	fi
+	ruff check .
+	mypy app core data
+
+format:
+	ruff format .
+	ruff check --fix .
+
+ci: lint test eval-smoke
+	@echo "All CI quality gates passed successfully."
 
 run:
 	$(PYTHON) run_api.py
@@ -25,4 +34,4 @@ run-dashboard:
 clean:
 	find . -type d -name "__pycache__" -exec rm -rf {} +
 	find . -type f -name "*.pyc" -delete
-	rm -rf .pytest_cache
+	rm -rf .pytest_cache .coverage

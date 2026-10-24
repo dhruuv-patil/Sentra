@@ -1,5 +1,5 @@
-import pytest
 from core.security.output_guards import OutputGuards
+
 
 def test_output_guards_violations():
     # Violence

@@ -1,23 +1,24 @@
-import uuid
-import time
 import json
 import logging
+import time
+import uuid
 from typing import Optional
-from fastapi import APIRouter, HTTPException, WebSocket, WebSocketDisconnect, Header, Depends, Query
+
+from fastapi import APIRouter, Depends, Header, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.responses import JSONResponse
 
 from app.api.schemas import (
-    ChatCompletionRequest,
     ApprovalAction,
+    ChatCompletionRequest,
     CreateTokenRequest,
     GuardrailToggleRequest,
-    PlaygroundEvaluateRequest
+    PlaygroundEvaluateRequest,
 )
-from core.security.input_guards import InputGuards
-from core.security.output_guards import OutputGuards
-from core.llm.provider_dispatcher import dispatcher
 from core.cache import cache
 from core.config import config
+from core.llm.provider_dispatcher import dispatcher
+from core.security.input_guards import InputGuards
+from core.security.output_guards import OutputGuards
 from data.repository import Repository
 
 logger = logging.getLogger("gateway.api")
@@ -444,15 +445,25 @@ async def get_dashboard_stats(
     stats = Repository.get_dashboard_metrics(time_filter=filter)
     return stats
 
+def _df_to_records(df) -> list[dict]:
+    """Converts a pandas DataFrame into JSON-compliant dictionaries with None for NaNs."""
+    if df.empty:
+        return []
+    import math
+    return [
+        {k: (None if (isinstance(v, float) and math.isnan(v)) else v) for k, v in row.items()}
+        for row in df.to_dict(orient="records")
+    ]
+
 @router.get("/api/approvals")
 async def get_approvals(admin: dict = Depends(require_admin_auth)):
     """Returns both pending authorizations and reviewed decision logs."""
     df_pending = Repository.get_pending_approvals()
     df_all = Repository.get_all_approvals()
-    
-    pending_list = df_pending.to_dict(orient="records") if not df_pending.empty else []
-    all_list = df_all.to_dict(orient="records") if not df_all.empty else []
-    
+
+    pending_list = _df_to_records(df_pending)
+    all_list = _df_to_records(df_all)
+
     return {
         "pending": pending_list,
         "history": all_list,
@@ -626,7 +637,7 @@ async def evaluate_playground(
             "steps": steps,
             "risk_score": risk_score,
             "latency_ms": 1.2,
-            "output": cached_val["response"]
+            "output": cached_val.get("response", "") if isinstance(cached_val, dict) else str(cached_val)
         }
 
     return {

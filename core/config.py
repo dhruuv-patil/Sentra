@@ -1,4 +1,5 @@
 import os
+
 from dotenv import load_dotenv
 
 # Load .env file
@@ -7,11 +8,11 @@ load_dotenv()
 class Config:
     # Database
     DATABASE = os.getenv("DATABASE", "llm_gateway.db")
-    
+
     # Security
     SECRET_KEY = os.getenv("SECRET_KEY")
     ENCRYPTION_KEY = os.getenv("ENCRYPTION_KEY")
-    
+
     # API Keys
     GROQ_API_KEY = os.getenv("GROQ_API_KEY")
     OLLAMA_URL = os.getenv("OLLAMA_URL", "http://localhost:11434")

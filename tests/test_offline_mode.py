@@ -1,11 +1,13 @@
-import pytest
 import socket
 from unittest.mock import patch
+
+import pytest
 from fastapi.testclient import TestClient
 
 from app.server import app
-from core.config import config
 from core.cache import cache
+from core.config import config
+
 
 @pytest.fixture
 def client():

@@ -1,5 +1,7 @@
 import sqlite3
+
 from core.config import config
+
 
 class Database:
     @staticmethod
@@ -14,7 +16,7 @@ class Database:
     def init_db():
         conn = Database.get_connection()
         c = conn.cursor()
-        
+
         # 1. Request Logs Table
         c.execute('''CREATE TABLE IF NOT EXISTS request_logs
                      (id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -28,7 +30,7 @@ class Database:
                       risk_score INTEGER,
                       latency REAL,
                       created_at TEXT)''')
-        
+
         # 2. Harmful Logs Table
         c.execute('''CREATE TABLE IF NOT EXISTS harmful_logs
                      (id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -38,7 +40,7 @@ class Database:
                       category TEXT,
                       risk_score INTEGER,
                       created_at TEXT)''')
-        
+
         # 3. Approval Queue Table
         c.execute('''CREATE TABLE IF NOT EXISTS approval_queue
                      (id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -66,7 +68,7 @@ class Database:
         ]:
             if col_name not in existing_cols:
                 c.execute(f"ALTER TABLE approval_queue ADD COLUMN {col_name} {col_type}")
-        
+
         # 4. Cache Entries Table
         c.execute('''CREATE TABLE IF NOT EXISTS cache_entries
                      (cache_key TEXT PRIMARY KEY,

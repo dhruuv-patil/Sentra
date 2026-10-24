@@ -1,7 +1,7 @@
-import os
-import sys
 import json
 import logging
+import os
+import sys
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT_DIR = os.path.dirname(BASE_DIR)
@@ -9,6 +9,7 @@ if ROOT_DIR not in sys.path:
     sys.path.insert(0, ROOT_DIR)
 
 import pandas as pd
+
 from core.security.input_guards import InputGuards
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
@@ -56,7 +57,7 @@ def run_evaluation():
     jbb_benign_path = os.path.join(DATA_DIR, "jbb_benign.csv")
 
     raw_results = []
-    
+
     # 1. Evaluate on deepset/prompt-injections test split
     if not os.path.exists(deepset_test_path):
         from eval.data.download_datasets import main as dl_main

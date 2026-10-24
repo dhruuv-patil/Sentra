@@ -1,5 +1,6 @@
-import re
 import base64
+import re
+
 
 class InputGuards:
     PII_RULES = {

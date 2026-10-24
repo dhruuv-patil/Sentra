@@ -1,11 +1,13 @@
+import json
+import logging
 import os
 import sys
-import json
 import time
-import logging
+
+import matplotlib
 import numpy as np
 import pandas as pd
-import matplotlib
+
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
@@ -14,7 +16,7 @@ ROOT_DIR = os.path.dirname(BASE_DIR)
 if ROOT_DIR not in sys.path:
     sys.path.insert(0, ROOT_DIR)
 
-from core.security.detectors import RegexDetector, MLDetector, EnsembleDetector
+from core.security.detectors import EnsembleDetector, MLDetector, RegexDetector
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 logger = logging.getLogger("eval.detectors")
@@ -130,7 +132,7 @@ def run_comparison():
     plt.plot(recalls_ml, precisions_ml, marker='o', color='#2563eb', linewidth=2, label="ML (TF-IDF + Logistic Regression)")
     plt.scatter([regex_metrics["recall"]], [regex_metrics["precision"]], color='#dc2626', s=120, zorder=5, label="Regex Guard (Heuristic baseline)")
     plt.scatter([ensemble_metrics["recall"]], [ensemble_metrics["precision"]], color='#16a34a', s=120, zorder=5, marker='^', label="Ensemble Guard (Regex + ML)")
-    
+
     plt.title("Precision-Recall Curve: Prompt Injection Defense", fontsize=14, fontweight='bold', pad=12)
     plt.xlabel("Recall (Detection Rate)", fontsize=12)
     plt.ylabel("Precision (Accuracy of Flagged Injections)", fontsize=12)

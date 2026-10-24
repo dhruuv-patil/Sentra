@@ -1,7 +1,7 @@
-import os
-import sys
 import json
 import logging
+import os
+import sys
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT_DIR = os.path.dirname(BASE_DIR)
@@ -17,10 +17,10 @@ logger = logging.getLogger("eval.pii")
 PRESIDIO_AVAILABLE = False
 try:
     from presidio_analyzer.predefined_recognizers import (
+        CreditCardRecognizer,
         EmailRecognizer,
         PhoneRecognizer,
-        CreditCardRecognizer,
-        UsSsnRecognizer
+        UsSsnRecognizer,
     )
     presidio_email = EmailRecognizer()
     presidio_phone = PhoneRecognizer()
@@ -74,7 +74,7 @@ def run_evaluation():
         test_data = json.load(f)
 
     all_entities = ["Email", "SSN", "Credit Card", "Phone Number", "API Key", "JWT Token"]
-    
+
     ground_truth = []
     gateway_preds = []
     presidio_preds = []
@@ -83,10 +83,10 @@ def run_evaluation():
     for item in test_data:
         text = item["text"]
         expected = item["expected_entities"]
-        
+
         # 1. Gateway PII evaluation
         sanitized_text, detected_gateway = InputGuards.mask_pii(text)
-        
+
         # 2. Presidio evaluation
         detected_presidio = run_presidio_detection(text)
 
