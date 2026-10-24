@@ -25,6 +25,9 @@ class Config:
     DETECTOR_TYPE = os.getenv("DETECTOR_TYPE", "ensemble")  # regex | ml | ensemble
     ML_THRESHOLD = float(os.getenv("ML_THRESHOLD", "0.5"))
 
+    # Air-Gapped & Offline Deployment
+    AIRGAPPED_MODE = os.getenv("AIRGAPPED_MODE", os.getenv("OFFLINE_MODE", "false")).lower() in ("true", "1", "yes")
+
     # Server
     API_HOST = os.getenv("API_HOST", "0.0.0.0")
     API_PORT = int(os.getenv("PORT", os.getenv("API_PORT", 8000)))

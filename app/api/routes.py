@@ -157,6 +157,17 @@ async def chat_completions(
     tenant_id = identity.get("tenant_id", "default")
     user_id = request.user or "default_user"
 
+    # 0. Data Sovereignty & Tenant Model Whitelist Enforcement
+    is_allowed, denial_reason = Repository.is_model_allowed_for_tenant(identity, request.model)
+    if not is_allowed:
+        return JSONResponse(
+            status_code=403,
+            content={
+                "error": f"Policy Restriction: {denial_reason}",
+                "request_id": request_id
+            }
+        )
+
     # Rate Limiting per API key / Tenant
     allowed, retry_after = rate_limiter.check_rate_limit(tenant_id)
     if not allowed:

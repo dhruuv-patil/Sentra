@@ -126,16 +126,18 @@ def test_auth_invalid_token_returns_401():
     assert "Unauthorized" in res.json()["detail"]
 
 def test_non_admin_client_cannot_access_admin_endpoints():
-    # Use client token with 'read' scope (sg_test_11a84f3cd789e023ba78cc from seed)
+    # Use client token with 'read' scope (sg_test_11a84f3cd789e023ba78cc from seed authorized for Ollama)
     client_scoped = TestClient(app)
     client_scoped.headers["Authorization"] = "Bearer sg_test_11a84f3cd789e023ba78cc"
 
-    # Chat completion is allowed for this client
-    chat_res = client_scoped.post("/v1/chat/completions", json={
-        "model": "groq/llama-3.3-70b-versatile",
-        "messages": [{"role": "user", "content": "Normal safe prompt"}]
-    })
-    assert chat_res.status_code == 200
+    # Chat completion is allowed for this client's authorized provider (Ollama)
+    mock_local = {"mode": "local", "choices": [{"message": {"role": "assistant", "content": "Safe output"}}], "usage": {"total_tokens": 10}}
+    with patch("core.llm.ollama_client.OllamaClient.complete", return_value=mock_local):
+        chat_res = client_scoped.post("/v1/chat/completions", json={
+            "model": "ollama/llama3",
+            "messages": [{"role": "user", "content": "Normal safe prompt"}]
+        })
+        assert chat_res.status_code == 200
 
     # Admin-only endpoints must return 403 Forbidden
     approve_res = client_scoped.post("/api/approve/any-id")

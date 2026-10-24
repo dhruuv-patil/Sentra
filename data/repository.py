@@ -59,6 +59,38 @@ class Repository:
         return None
 
     @staticmethod
+    def is_model_allowed_for_tenant(identity: dict, model_spec: str) -> tuple[bool, str | None]:
+        """
+        Enforces tenant model restrictions and air-gapped sovereignty policies.
+        Returns (is_allowed, denial_reason).
+        """
+        from core.llm.provider_dispatcher import ProviderDispatcher
+        provider, model_name = ProviderDispatcher.parse_spec(model_spec)
+
+        # 1. Global Air-gapped / Offline mode restriction
+        if getattr(config, "AIRGAPPED_MODE", False):
+            if provider != "ollama":
+                return False, f"Cloud provider '{provider}' is disabled in air-gapped / offline deployment. Only local sovereign models (e.g. 'ollama/*') are permitted."
+
+        # 2. Admin scope bypasses tenant model whitelist
+        scope = identity.get("scope", "")
+        if scope == "admin" or identity.get("tenant_id") == "admin":
+            return True, None
+
+        # 3. Tenant provider policy from token metadata
+        allowed_policy = identity.get("provider", "All")
+        if not allowed_policy or allowed_policy in ("All", "All Models", "*"):
+            return True, None
+
+        pol_lower = allowed_policy.lower()
+        if "groq" in pol_lower and provider == "groq":
+            return True, None
+        if "ollama" in pol_lower and provider == "ollama":
+            return True, None
+
+        return False, f"Tenant is restricted to '{allowed_policy}', but requested provider '{provider}' ({model_spec})."
+
+    @staticmethod
     def log_request(request_id, user_id, model, prompt, response, tokens, cost, risk_score, latency):
         """Logs a completed request. Ensures prompt is PII-sanitized and response is encrypted."""
         sanitized_prompt, _ = InputGuards.mask_pii(prompt or "")
