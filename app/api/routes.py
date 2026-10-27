@@ -126,7 +126,7 @@ async def health_check():
     """System health check endpoint (distinguishes liveness & service stats)."""
     return {
         "status": "healthy",
-        "service": "LLM Security Gateway Pro",
+        "service": "Sentra",
         "version": "2.0.0",
         "cache_entries": cache.count(),
         "api_host": config.API_HOST,

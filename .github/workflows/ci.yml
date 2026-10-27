@@ -63,11 +63,11 @@ jobs:
 
       - name: Build Gateway Docker Image
         run: |
-          docker build -t llm-security-gateway:latest .
+          docker build -t sentra:latest .
 
       - name: Verify Container Self-Check
         run: |
-          docker run --rm llm-security-gateway:latest python -c "
+          docker run --rm sentra:latest python -c "
           import core.security.input_guards
           import core.security.detectors
           import data.repository

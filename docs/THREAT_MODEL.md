@@ -1,14 +1,14 @@
-# LLM Security Gateway: Threat Model & Security Architecture
+# Sentra: Threat Model & Security Architecture
 
 **Document Version:** 1.0  
-**Scope:** `llm-security-gateway` (FastAPI Middleware, In-Memory Caching, Local SQLite Persistence, ML Guardrails)  
+**Scope:** `Sentra` (FastAPI Middleware, In-Memory Caching, Local SQLite Persistence, ML Guardrails)  
 **Target Deployment:** Sovereign On-Premise, Air-Gapped Enclaves, and Cloud-Edge Hybrid Environments  
 
 ---
 
 ## 1. System Overview
 
-The `llm-security-gateway` operates as an inline, zero-trust security proxy deployed between client applications (microservices, internal developer tools, public APIs) and Large Language Model inference backends (local Ollama instances or Groq Cloud LPUs).
+The `Sentra` platform operates as an inline, zero-trust security proxy deployed between client applications (microservices, internal developer tools, public APIs) and Large Language Model inference backends (local Ollama instances or Groq Cloud LPUs).
 
 Its primary objective is to inspect, sanitize, govern, and log all prompt interactions while preserving strict multi-tenant boundaries and data sovereignty in air-gapped or on-prem environments.
 

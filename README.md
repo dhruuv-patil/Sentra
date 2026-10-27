@@ -57,8 +57,8 @@ An enterprise-grade, high-performance security middleware and observability plat
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/dhruuv-patil/llm-security-gateway.git
-cd llm-security-gateway
+git clone https://github.com/dhruuv-patil/Sentra.git
+cd Sentra
 ```
 
 ### 2. Set Up a Virtual Environment & Install Dependencies
@@ -286,7 +286,7 @@ curl "http://localhost:8000/api/health"
 ## 📂 Project Structure
 
 ```text
-llm-security-gateway/
+Sentra/
 ├── app/                        # Web Application & Routing Layer
 │   ├── api/                    # API route controllers & Pydantic schemas
 │   │   ├── routes.py           # Core endpoints, WebSocket telemetry & approvals
@@ -342,4 +342,4 @@ Distributed under the MIT License. See [`LICENSE`](LICENSE) for details.
 
 **Dhruv Patil**
 * GitHub: [@dhruuv-patil](https://github.com/dhruuv-patil)
-* Project: [llm-security-gateway](https://github.com/dhruuv-patil/llm-security-gateway)
+* Project: [Sentra](https://github.com/dhruuv-patil/Sentra)

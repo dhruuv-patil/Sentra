@@ -14,13 +14,13 @@ from data.repository import Repository
 
 
 def run_dashboard():
-    st.set_page_config(page_title="LLM Gateway | Security Dashboard", layout="wide", page_icon="🛡️")
+    st.set_page_config(page_title="Sentra | Security Dashboard", layout="wide", page_icon="🛡️")
     inject_custom_css()
 
     # Sidebar Navigation
     with st.sidebar:
         st.image("https://img.icons8.com/parakeet/96/shield.png", width=80)
-        st.markdown("<h2 style='color: white; margin-bottom: 20px;'>Gateway Admin</h2>", unsafe_allow_html=True)
+        st.markdown("<h2 style='color: white; margin-bottom: 20px;'>Sentra Admin</h2>", unsafe_allow_html=True)
         page = st.radio("MAIN MENU", ["🚀 Overview", "⚖️ Approvals", "📈 Analytics", "📜 History", "🛡️ Security"])
         st.divider()
         st.markdown("### System Status")
@@ -34,7 +34,7 @@ def run_dashboard():
 
         st.divider()
         st.markdown("👨‍💻 **Author:** [Dhruv Patil](https://github.com/dhruuv-patil)")
-        st.markdown("🔗 **Source:** [GitHub Repository](https://github.com/dhruuv-patil/llm-security-gateway)")
+        st.markdown("🔗 **Source:** [GitHub Repository](https://github.com/dhruuv-patil/Sentra)")
 
     if page == "🚀 Overview":
         st.markdown("<div class='main-header'>Gateway Overview</div>", unsafe_allow_html=True)

@@ -3,7 +3,7 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llm-security-gateway"
+name = "sentra"
 version = "2.0.0"
 description = "A robust, middleware-based security gateway and observability suite for Large Language Models."
 readme = "README.md"
@@ -50,9 +50,9 @@ dev = [
 ]
 
 [project.urls]
-"Homepage" = "https://github.com/dhruuv-patil/llm-security-gateway"
-"Repository" = "https://github.com/dhruuv-patil/llm-security-gateway.git"
-"Bug Tracker" = "https://github.com/dhruuv-patil/llm-security-gateway/issues"
+"Homepage" = "https://github.com/dhruuv-patil/Sentra"
+"Repository" = "https://github.com/dhruuv-patil/Sentra.git"
+"Bug Tracker" = "https://github.com/dhruuv-patil/Sentra/issues"
 
 [tool.pytest.ini_options]
 pythonpath = ["."]

@@ -212,7 +212,7 @@ export default function SettingsPage() {
               </p>
               <div className="pt-1 text-[10.5px] font-mono text-zinc-400 space-y-0.5">
                 <div>Author: <span className="text-white">Dhruv Patil</span></div>
-                <div>Source: <span className="text-zinc-300">github.com/dhruuv-patil/llm-security-gateway</span></div>
+                <div>Source: <span className="text-zinc-300">github.com/dhruuv-patil/Sentra</span></div>
               </div>
             </div>
           </div>
