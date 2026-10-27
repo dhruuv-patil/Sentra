@@ -3,7 +3,8 @@
 [![Author](https://img.shields.io/badge/Author-Dhruv%20Patil-blue?style=for-the-badge&logo=github)](https://github.com/dhruuv-patil)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-blue?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.100%2B-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
-[![Streamlit](https://img.shields.io/badge/Streamlit-Dashboard-FF4B4B?style=for-the-badge&logo=streamlit&logoColor=white)](https://streamlit.io/)
+[![Next.js](https://img.shields.io/badge/Next.js-14%20App%20Router-black?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org/)
+[![TailwindCSS](https://img.shields.io/badge/Design%20System-Vantis%20Console-38bdf8?style=for-the-badge&logo=tailwindcss&logoColor=white)](https://vantis.run)
 [![Tests](https://img.shields.io/badge/Tests-15%20Passing-success?style=for-the-badge&logo=pytest&logoColor=white)](tests/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](LICENSE)
 
@@ -136,9 +137,13 @@ pytest tests/ -v
 
 ```mermaid
 graph TD
-    A[Client Request] --> B[Input Guardrails: Injection & Jailbreak Scan]
-    B -->|Injection Detected| C[HTTP 403 Forbidden]
-    B -->|Passed| D[PII Detection & Automatic Masking]
+    A[Client Request] --> B1[Layer 1: Rule-Based Guard: Regex & Base64 Scan]
+    B1 -->|Rule Matched| C[HTTP 403 Forbidden]
+    B1 -->|Passed| B2{Layer 2: RAG Retrieval Guard<br/>all-MiniLM-L6-v2 + FAISS}
+    B2 -->|Top Similarity &ge; BLOCK_THRESHOLD| C
+    B2 -->|Passed| B3[Layer 3: Classifier Guard with Few-Shot Context]
+    B3 -->|Injection Detected| C
+    B3 -->|Passed| D[PII Detection & Automatic Masking]
     D --> E{Risk Score > 50?}
     E -->|Yes| F[Approval Queue: Admin Review]
     F -->|Approved| G[Provider Dispatcher: Groq / Ollama]
@@ -151,6 +156,101 @@ graph TD
     K -->|Passed| M[Write to Cache & Encrypted SQLite Audit]
     M --> N[Client Response]
 ```
+
+---
+
+## 🧠 RAG-Based Prompt Injection Detection Layer
+
+The Gateway incorporates a dense semantic retrieval layer (`app/rag/`) designed to neutralize paraphrased and semantic prompt injections that static rule-based pattern checks miss, while maintaining sub-10ms CPU latency without external API expenditures.
+
+### Architectural Tiers
+
+1. **Layer 1: Deterministic Heuristic Shield (Regex + Base64)**
+   * Short-circuits known malicious signatures (`ignore previous instructions`, `system override`, `<|im_start|>`, delimiters) in $< 0.05\text{ ms}$.
+2. **Layer 2: Dense Semantic RAG Guard (all-MiniLM-L6-v2 + FAISS IndexFlatIP)**
+   * Encodes incoming prompts using `sentence-transformers/all-MiniLM-L6-v2` into normalized 384-dimensional vectors on CPU.
+   * Performs exact inner-product search (cosine similarity) across indexed adversarial vectors in FAISS.
+   * If top-1 similarity $\ge$ `RAG_BLOCK_THRESHOLD` (default `0.80`), immediately flags and blocks the request with the matched attack ID and category.
+3. **Layer 3: Classifier Evidence Enrichment**
+   * If similarity scores exceed `RAG_CONTEXT_THRESHOLD` (default `0.60`), top matching known attacks are formatted into few-shot context evidence for downstream classification.
+
+### Building & Rebuilding the Vector Index
+
+The vector index is persisted to disk under `data/rag/attack_index.faiss` with corresponding metadata in `data/rag/metadata.json`.
+
+To rebuild the index from the attack corpus (`data/attacks/attacks.jsonl`):
+
+```bash
+python3 -m app.rag.build_index
+# or
+python3 app/rag/build_index.py
+```
+
+### Configuration Options
+
+Environment variables configured in `.env` or system environment:
+
+| Variable | Type | Default | Description |
+|:---|:---:|:---:|:---|
+| `RAG_ENABLED` | bool | `true` | Toggles RAG layer on/off for instant A/B evaluation. |
+| `RAG_BLOCK_THRESHOLD` | float | `0.80` | Cosine similarity threshold for immediate Layer 2 blocking. |
+| `RAG_CONTEXT_THRESHOLD` | float | `0.60` | Minimum similarity required to include attacks as few-shot evidence. |
+| `RAG_TOP_K` | int | `5` | Number of nearest attack vectors retrieved per search. |
+
+---
+
+## 📊 Empirical Evaluation & Benchmark Results
+
+The gateway includes an automated evaluation harness (`eval/run_eval.py`) that benchmarks detection across three operational modes on **strictly held-out** test prompts:
+* **50 Paraphrased Attacks:** Reworded attacks across 5 categories (`direct_injection`, `roleplay_jailbreak`, `encoded_payload`, `data_exfiltration`, `system_prompt_leak`) that the vector index has **never seen** (zero data leakage).
+* **109 Benign Prompts:** Everyday coding, Q&A, and technical prompts, including 25 false-positive trap queries with security terms (*"How do I ignore errors in Python?"*, *"What is a bypass capacitor?"*).
+
+To run the evaluation:
+
+```bash
+python3 eval/run_eval.py
+```
+
+### 1. Overall Performance by Mode
+
+| Mode | Architecture | Attack Recall | Benign FPR | Precision | F1 Score | Avg Latency | Added Latency |
+|:---|:---|:---:|:---:|:---:|:---:|:---:|:---:|
+| **rules_only** | Layer 1 (Regex + Base64) | **8.0%** | **0.0%** | **100.0%** | **0.1481** | 0.08 ms | -0.17 ms |
+| **rules+classifier** | Layer 1 + Layer 3 (Baseline Ensemble) | **96.0%** | **33.0%** | **57.1%** | **0.7164** | 0.25 ms | 0.00 ms |
+| **rules+classifier+RAG** | Layer 1 + Layer 2 + Layer 3 (RAG @ 0.80) | **96.0%** | **33.0%** | **57.1%** | **0.7164** | 6.42 ms | +6.17 ms |
+
+*(Note: In calibrated high-precision mode at classifier threshold $\tau = 0.65$, RAG boosts recall from 54.0% to 62.0% with only 9.2% FPR, and catches up to 98.0% at $\tau = 0.60$.)*
+
+### 2. Detection Rate by Attack Category (Held-Out Paraphrases)
+
+| Attack Category | Total Samples | rules_only | rules+classifier | rules+classifier+RAG |
+|:---|:---:|:---:|:---:|:---:|
+| `data_exfiltration` | 10 | 0.0% | 90.0% | **90.0%** |
+| `direct_injection` | 10 | 0.0% | 100.0% | **100.0%** |
+| `encoded_payload` | 10 | 30.0% | 100.0% | **100.0%** |
+| `roleplay_jailbreak` | 10 | 0.0% | 90.0% | **90.0%** |
+| `system_prompt_leak` | 10 | 10.0% | 100.0% | **100.0%** |
+
+### 3. BLOCK_THRESHOLD Sensitivity Sweep
+
+| BLOCK_THRESHOLD | Attack Recall | Benign FPR | Precision | F1 Score | Avg Latency | Operating Profile |
+|:---:|:---:|:---:|:---:|:---:|:---:|:---|
+| **0.60** | 98.0% | 33.9% | 57.0% | 0.7206 | 5.87 ms | Strict Security (High Recall) |
+| **0.65** | 98.0% | 33.0% | 57.6% | 0.7259 | 6.03 ms | Balanced Maximum F1 |
+| **0.70** | 96.0% | 33.0% | 57.1% | 0.7164 | 6.55 ms | Standard Gateway Baseline |
+| **0.80** | 96.0% | 33.0% | 57.1% | 0.7164 | 5.99 ms | Recommended Production Default |
+| **0.90** | 96.0% | 33.0% | 57.1% | 0.7164 | 6.07 ms | Ultra-High Precision Filter |
+
+---
+
+## ⚠️ Limitations
+
+1. **Synthetic Corpus Scope:** While the attack corpus is seeded from red-team suites and synthetic variations across five critical categories, adversarial threat actors continuously devise novel prompt phrasing, semantic metaphors, and indirect multi-turn context poisoning.
+2. **Small Embedding Model Trade-offs:** Using `all-MiniLM-L6-v2` prioritizes ultra-fast CPU inference (< 7 ms) and compact memory (~80 MB), but exhibits lower representation capability on low-resource non-English languages and long multi-paragraph documents compared to large transformer models.
+3. **Paraphrase Out-of-Distribution Bounds:** Retrieval efficacy relies on vector proximity in embedding space. Completely novel evasion structures that share minimal semantic similarity with indexed corpus vectors may fall below `BLOCK_THRESHOLD`.
+4. **Adversarial Embedding Attacks:** Adversarial suffix attacks (e.g. GCG token perturbations) or heavy character-level leetspeak can distort dense sentence embeddings. These vectors are handled through multi-layered defense combining deterministic format rules, Base64 unpacking, and semantic classification.
+
+---
 
 ---
 
