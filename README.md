@@ -1,4 +1,4 @@
-# 🛡️ LLM Security Gateway Pro
+# Sentra (LLM Security Gateway Pro)
 
 [![Author](https://img.shields.io/badge/Author-Dhruv%20Patil-blue?style=for-the-badge&logo=github)](https://github.com/dhruuv-patil)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-blue?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
