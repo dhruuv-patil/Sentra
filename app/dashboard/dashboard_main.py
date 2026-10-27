@@ -136,12 +136,32 @@ def run_dashboard():
         conn.close()
         if not df.empty and 'response' in df.columns:
             df['response'] = df['response'].apply(lambda x: crypto.decrypt(x) if isinstance(x, str) and x.startswith('gAAAAA') else x)
+            # Format RAG matches for display if available
+            if 'rag_matches' in df.columns:
+                def format_rag_summary(val):
+                    if not val or not isinstance(val, str) or val in ("None", "null", "[]"):
+                        return "-"
+                    try:
+                        import json
+                        matches = json.loads(val)
+                        if isinstance(matches, list) and matches:
+                            top = matches[0]
+                            return f"ID: {top.get('id')} ({top.get('category')}) | Score: {top.get('score', 0):.2f}"
+                    except Exception:
+                        pass
+                    return str(val)[:30]
+                df['rag_top_match'] = df['rag_matches'].apply(format_rag_summary)
             st.dataframe(df, use_container_width=True)
         else:
             st.info("Audit log is currently empty.")
 
     elif page == "🛡️ Security":
         st.markdown("<div class='main-header'>Threat Intelligence & Violations</div>", unsafe_allow_html=True)
+        col_rag1, col_rag2, col_rag3 = st.columns(3)
+        col_rag1.metric("RAG Shield Status", "ENABLED" if getattr(config, "RAG_ENABLED", True) else "DISABLED")
+        col_rag2.metric("RAG Block Threshold", f"{getattr(config, 'RAG_BLOCK_THRESHOLD', 0.80):.2f}")
+        col_rag3.metric("RAG Context Threshold", f"{getattr(config, 'RAG_CONTEXT_THRESHOLD', 0.60):.2f}")
+        st.divider()
         conn = Database.get_connection()
         df_harmful = pd.read_sql_query("SELECT * FROM harmful_logs ORDER BY created_at DESC", conn)
         conn.close()

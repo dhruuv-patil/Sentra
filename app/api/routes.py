@@ -190,8 +190,16 @@ async def chat_completions(
     from core.security.detectors import detector
     is_injection = False
     injection_detail = None
+    all_rag_matches = []
+    total_rag_latency = 0.0
+
     for idx, msg in enumerate(request.messages):
         det_res = detector.predict(msg.content)
+        if hasattr(det_res, "rag_matches") and det_res.rag_matches:
+            all_rag_matches.extend(det_res.rag_matches)
+        if hasattr(det_res, "latency_ms") and det_res.latency_ms:
+            total_rag_latency += det_res.latency_ms
+
         if det_res.is_injection:
             is_injection = True
             injection_detail = f"Message index {idx} ({msg.role}): {det_res.detail}"
@@ -266,7 +274,11 @@ async def chat_completions(
             "tokens": 0,
             "message": "Served instantly from Gateway Cache (0 tokens consumed)"
         })
-        Repository.log_request(request_id, user_id, request.model, last_sanitized_prompt, cached["response"], 0, 0.0, risk_score, 0.001)
+        rag_json = json.dumps(all_rag_matches) if all_rag_matches else None
+        Repository.log_request(
+            request_id, user_id, request.model, last_sanitized_prompt, cached["response"], 0, 0.0, risk_score, 0.001,
+            rag_matches=rag_json, rag_latency=round(total_rag_latency, 2)
+        )
         return JSONResponse(
             status_code=200,
             headers={"X-Gateway-Mode": "cached", "X-Cache-Hit": "true"},
@@ -352,7 +364,11 @@ async def chat_completions(
 
     # 8. Cache & Audit Persistence (PII strictly masked, response encrypted)
     cache.set(request.model, last_sanitized_prompt, llm_response, tokens, cost, tenant_id=tenant_id, parameters=gen_params)
-    Repository.log_request(request_id, user_id, request.model, last_sanitized_prompt, llm_response, tokens, cost, risk_score, latency)
+    rag_json = json.dumps(all_rag_matches) if all_rag_matches else None
+    Repository.log_request(
+        request_id, user_id, request.model, last_sanitized_prompt, llm_response, tokens, cost, risk_score, latency,
+        rag_matches=rag_json, rag_latency=round(total_rag_latency, 2)
+    )
 
     await manager.broadcast({
         "type": "request_completed",

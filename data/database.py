@@ -29,7 +29,18 @@ class Database:
                       cost REAL,
                       risk_score INTEGER,
                       latency REAL,
+                      rag_matches TEXT,
+                      rag_latency REAL,
                       created_at TEXT)''')
+
+        # Run safe column migrations for request_logs if table previously existed
+        existing_req_cols = [row[1] for row in c.execute("PRAGMA table_info(request_logs)").fetchall()]
+        for col_name, col_type in [
+            ("rag_matches", "TEXT"),
+            ("rag_latency", "REAL"),
+        ]:
+            if col_name not in existing_req_cols:
+                c.execute(f"ALTER TABLE request_logs ADD COLUMN {col_name} {col_type}")
 
         # 2. Harmful Logs Table
         c.execute('''CREATE TABLE IF NOT EXISTS harmful_logs

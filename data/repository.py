@@ -94,7 +94,7 @@ class Repository:
         return False, f"Tenant is restricted to '{allowed_policy}', but requested provider '{provider}' ({model_spec})."
 
     @staticmethod
-    def log_request(request_id, user_id, model, prompt, response, tokens, cost, risk_score, latency):
+    def log_request(request_id, user_id, model, prompt, response, tokens, cost, risk_score, latency, rag_matches=None, rag_latency=None):
         """Logs a completed request. Ensures prompt is PII-sanitized and response is encrypted."""
         sanitized_prompt, _ = InputGuards.mask_pii(prompt or "")
         encrypted_response = crypto.encrypt(response or "")
@@ -102,9 +102,10 @@ class Repository:
         conn = Database.get_connection()
         c = conn.cursor()
         c.execute("""INSERT INTO request_logs 
-                     (request_id, user_id, model, prompt, response, tokens, cost, risk_score, latency, created_at)
-                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                     (request_id, user_id, model, prompt, response, tokens, cost, risk_score, latency, rag_matches, rag_latency, created_at)
+                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
                   (request_id, user_id, model, sanitized_prompt, encrypted_response, tokens, cost, risk_score, latency,
+                   rag_matches, rag_latency,
                    datetime.now(timezone.utc).isoformat()))
         conn.commit()
         conn.close()

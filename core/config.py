@@ -26,6 +26,12 @@ class Config:
     DETECTOR_TYPE = os.getenv("DETECTOR_TYPE", "ensemble")  # regex | ml | ensemble
     ML_THRESHOLD = float(os.getenv("ML_THRESHOLD", "0.5"))
 
+    # RAG Injection Detection Layer
+    RAG_ENABLED = os.getenv("RAG_ENABLED", "true").lower() in ("true", "1", "yes")
+    RAG_BLOCK_THRESHOLD = float(os.getenv("RAG_BLOCK_THRESHOLD", "0.80"))
+    RAG_CONTEXT_THRESHOLD = float(os.getenv("RAG_CONTEXT_THRESHOLD", "0.60"))
+    RAG_TOP_K = int(os.getenv("RAG_TOP_K", "5"))
+
     # Air-Gapped & Offline Deployment
     AIRGAPPED_MODE = os.getenv("AIRGAPPED_MODE", os.getenv("OFFLINE_MODE", "false")).lower() in ("true", "1", "yes")
 
