@@ -35,6 +35,13 @@ host_header_poisoning_report.json
 htmlcov/
 .pytest_cache/
 
+# Node & Frontend
+node_modules/
+.next/
+out/
+build/
+dist/
+
 # IDE & History
 .history/
 .vscode/
